@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coefficenti di Ammortamento</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7ff;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --primary: #3b82f6;
+      --primary-soft: #dbeafe;
+      --accent: #0f766e;
+      --accent-soft: #ccfbf1;
+      --warn: #b45309;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg), #eef2ff);
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1260px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+    }
+
+    .hero {
+      position: relative;
+      padding: 32px 36px;
+      background: linear-gradient(120deg, #1e3a8a 0%, #3b82f6 55%, #6366f1 100%);
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -60px;
+      right: -40px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: 1.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    .hero p {
+      margin: 0 0 4px;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.6;
+      max-width: 720px;
+    }
+
+    .hero p:last-child { margin-bottom: 0; }
+
+    .hero .credits { margin-top: 12px; text-align: left; font-size: 0.8rem; }
+
+    .hero a {
+      color: #fff;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .hero a:hover { color: #e0e7ff; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 24px 28px 20px;
+      align-items: center;
+    }
+
+    .toolbar input,
+    .toolbar select,
+    .toolbar button {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 9px 12px;
+      font-size: 0.95rem;
+    }
+
+    .toolbar input {
+      flex: 1;
+      min-width: 240px;
+      background: #fff;
+    }
+
+    .toolbar select {
+      min-width: 180px;
+      background: #fff;
+    }
+
+    .toolbar button {
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+
+    .toolbar button:hover { filter: brightness(0.95); }
+
+    .status {
+      margin: 0 28px 20px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--primary-soft);
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+
+    .section {
+      padding: 0 28px 24px;
+    }
+
+    .section h2 {
+      margin: 0 0 10px;
+      font-size: 1.02rem;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.03);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tbody tr:hover {
+      background: #f8fbff;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .pill.alt {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    details.record {
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--primary);
+      border-radius: 12px;
+      padding: 0;
+      margin: 0 0 10px;
+    }
+
+    details.record > summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 12px 14px;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    details.record > summary::before {
+      content: "\25B8";
+      color: var(--primary);
+      font-size: 0.9rem;
+      transition: transform 0.15s ease;
+    }
+
+    details.record[open] > summary::before { transform: rotate(90deg); }
+
+    details.record > summary:hover { background: #f8fbff; }
+
+    .rec-title { flex: 1; min-width: 160px; }
+    .rec-meta { font-weight: 500; }
+
+    .rec-body { padding: 4px 14px 12px; }
+
+    details.record.nested {
+      border-left-color: var(--accent);
+      margin: 8px 0;
+      background: #fcfdff;
+    }
+
+    details.record.nested table { margin-top: 6px; }
+
+    .tree {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.93rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    summary {
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    /* Albero JSON */
+    .tree details {
+      margin: 0;
+      padding: 0;
+      border-left: 1px dashed var(--border);
+    }
+
+    .tree > .leaf > details { border-left: none; }
+
+    .tree summary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .tree summary::before {
+      content: "\25B8";
+      color: var(--muted);
+      font-size: 0.85rem;
+      transition: transform 0.15s ease;
+    }
+
+    .tree details[open] > summary::before { transform: rotate(90deg); }
+
+    .tree summary:hover { background: var(--primary-soft); }
+
+    .tree-children { margin-left: 16px; }
+
+    .leaf { padding: 1px 0; }
+
+    .tree .leaf .leaf { margin-left: 22px; }
+
+    .key {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .value-string { color: #0a7f2e; }
+    .value-number { color: var(--warn); }
+    .value-boolean { color: #7c3aed; }
+    .value-null { color: var(--muted); font-style: italic; }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 12px; }
+      .hero, .toolbar, .status, .section { padding-left: 16px; padding-right: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1>Coefficienti di Ammortamento</h1>
+      <p>Consulta i coefficienti di ammortamento con una vista chiara, filtri rapidi e colori distintivi.</p>
+      <p>
+        Dati tratti dalla
+        <a href="https://def.finanze.it/DocTribFrontend/getAttoNormativoDetail.do?ACTION=getArticolo&id=%7B906C54FE-222B-4BBD-9489-34F78F6D600E%7D&codiceOrdinamento=800000000000000&articolo=Tabella" target="_blank" rel="noopener">tabella ministeriale</a>
+        (D.M. 31 dicembre 1988) e raccolti in un pratico file JSON disponibile su
+        <a href="https://github.com/denvermotel/coefficenti_ammortamento" target="_blank" rel="noopener">GitHub</a>.
+      </p>
+      <p class="credits">a cura di <a href="https://github.com/denvermotel" target="_blank" rel="noopener">Giovanni Genna</a></p>
+    </div>
+
+    <div class="toolbar">
+      <input type="search" id="searchInput" placeholder="Cerca nel JSON..." />
+      <select id="viewSelect">
+        <option value="all">Tutto</option>
+        <option value="groups">Solo gruppi</option>
+        <option value="activities">Solo attività non specificate (gr. 23)</option>
+      </select>
+      <select id="groupSelect">
+        <option value="">Tutti i gruppi</option>
+      </select>
+      <button id="resetButton" type="button">Reset</button>
+    </div>
+
+    <div id="status" class="status">Caricamento automatico di coeff_ammortamento.json...</div>
+
+    <div class="section">
+      <h2>Record principali</h2>
+      <div id="tables"></div>
+    </div>
+
+    <div class="section">
+      <h2>Struttura JSON</h2>
+      <div id="tree" class="tree"></div>
+    </div>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const searchInput = document.getElementById('searchInput');
+    const viewSelect = document.getElementById('viewSelect');
+    const groupSelect = document.getElementById('groupSelect');
+    const resetButton = document.getElementById('resetButton');
+    const treeEl = document.getElementById('tree');
+    const tablesEl = document.getElementById('tables');
+
+    let data = null;
+    let filters = { search: '', view: 'all', group: '' };
+
+    window.addEventListener('DOMContentLoaded', loadDefaultJson);
+
+    searchInput.addEventListener('input', (event) => {
+      filters.search = event.target.value.trim().toLowerCase();
+      render();
+    });
+
+    viewSelect.addEventListener('change', (event) => {
+      filters.view = event.target.value;
+      render();
+    });
+
+    groupSelect.addEventListener('change', (event) => {
+      filters.group = event.target.value;
+      render();
+    });
+
+    resetButton.addEventListener('click', () => {
+      filters = { search: '', view: 'all', group: '' };
+      searchInput.value = '';
+      viewSelect.value = 'all';
+      groupSelect.value = '';
+      render();
+    });
+
+    async function loadDefaultJson() {
+      try {
+        const response = await fetch('coeff_ammortamento.json', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Impossibile caricare il file (${response.status})`);
+        data = await response.json();
+        populateGroupFilter();
+        statusEl.textContent = 'File caricato automaticamente: coeff_ammortamento.json';
+        render();
+      } catch (error) {
+        statusEl.textContent = 'Errore nel caricamento: ' + error.message;
+        treeEl.innerHTML = '<div class="muted">Apri questa pagina da un server locale, ad esempio con python -m http.server, per caricare il file JSON.</div>';
+      }
+    }
+
+    function populateGroupFilter() {
+      const groups = Array.isArray(data?.gruppi) ? data.gruppi : [];
+      groupSelect.innerHTML = '<option value="">Tutti i gruppi</option>';
+      groups.forEach((item) => {
+        const option = document.createElement('option');
+        option.value = String(item?.gruppo ?? '');
+        option.textContent = `Gruppo ${item?.gruppo ?? ''}`;
+        groupSelect.appendChild(option);
+      });
+    }
+
+    function render() {
+      if (!data) return;
+      renderTables();
+      treeEl.innerHTML = '';
+      const rootNode = renderNode(data, 'root', 0);
+      treeEl.appendChild(rootNode);
+    }
+
+    function textMatch(val) {
+      return String(val ?? '').toLowerCase().includes(filters.search);
+    }
+
+    function renderTables() {
+      const search = filters.search;
+      const groups = Array.isArray(data?.gruppi) ? data.gruppi : [];
+      let html = '';
+      let shown = 0;
+
+      groups.filter((item) => matchesGroup(item)).forEach((item) => {
+        const groupHit = !search || textMatch(item?.gruppo) || textMatch(item?.descrizione);
+        const specieAll = Array.isArray(item?.specie) ? item.specie : [];
+
+        // Quando si cerca, mostra solo le specie/coefficienti che combaciano
+        // (a meno che il gruppo stesso non combaci: in quel caso le mostra tutte).
+        const specie = (!search || groupHit)
+          ? specieAll
+          : specieAll
+              .map((s) => filterSpecie(s))
+              .filter(Boolean);
+
+        if (search && !groupHit && !specie.length) return;
+
+        const coeffTot = specie.reduce((sum, s) => sum + (Array.isArray(s?.coefficienti) ? s.coefficienti.length : 0), 0);
+        const open = !!search;
+        html += `<details class="record"${open ? ' open' : ''}>
+            <summary>
+              <span class="pill">Gruppo ${escapeHtml(item?.gruppo ?? '')}</span>
+              <span class="rec-title">${escapeHtml(item?.descrizione ?? '')}</span>
+              <span class="muted rec-meta">${specie.length} specie · ${coeffTot} coefficienti</span>
+            </summary>
+            <div class="rec-body">${renderSpecie(specie, open)}</div>
+          </details>`;
+        shown += 1;
+      });
+
+      tablesEl.innerHTML = shown
+        ? `<div class="card"><h3>Gruppi</h3>${html}</div>`
+        : '<div class="card"><div class="muted">Nessun record corrisponde ai filtri attuali.</div></div>';
+    }
+
+    // Restituisce una copia della specie con i soli coefficienti che combaciano,
+    // oppure null se né la specie né i suoi coefficienti combaciano con la ricerca.
+    function filterSpecie(s) {
+      const specieHit = textMatch(s?.specie) || textMatch(s?.descrizione);
+      const coeff = Array.isArray(s?.coefficienti) ? s.coefficienti : [];
+      if (specieHit) return s;
+      const matched = coeff.filter((c) => textMatch(c?.bene) || textMatch(c?.percentuale));
+      if (!matched.length) return null;
+      return { ...s, coefficienti: matched };
+    }
+
+    function renderSpecie(specieList, openAll) {
+      if (!specieList.length) return '<div class="muted">Nessuna specie.</div>';
+      return specieList.map((s) => {
+        const coeff = Array.isArray(s?.coefficienti) ? s.coefficienti : [];
+        const rows = coeff.map((c) =>
+          `<tr><td>${escapeHtml(c?.bene ?? '')}</td><td><span class="pill alt">${escapeHtml(c?.percentuale ?? '')}%</span></td></tr>`
+        ).join('');
+        return `<details class="record nested"${openAll ? ' open' : ''}>
+          <summary>
+            <span class="rec-title">${escapeHtml(s?.specie ?? '')} — ${escapeHtml(s?.descrizione ?? '')}</span>
+            <span class="muted rec-meta">${coeff.length} coefficienti</span>
+          </summary>
+          <table><thead><tr><th>Bene</th><th>%</th></tr></thead><tbody>${rows}</tbody></table>
+        </details>`;
+      }).join('');
+    }
+
+    function renderNode(value, label, depth) {
+      const container = document.createElement('div');
+      container.className = 'leaf';
+      // Chiuso di default; aperto solo durante una ricerca attiva.
+      const openByDefault = !!filters.search;
+
+      if (Array.isArray(value)) {
+        const filtered = value.filter((item) => shouldIncludeArrayItem(item));
+        if (!filtered.length && filters.search) return container;
+
+        const details = document.createElement('details');
+        details.open = openByDefault;
+        const summary = document.createElement('summary');
+        summary.textContent = `${label} [${filtered.length}]`;
+        details.appendChild(summary);
+
+        const children = document.createElement('div');
+        children.className = 'tree-children';
+        filtered.forEach((item, index) => {
+          const child = renderNode(item, `[${index}]`, depth + 1);
+          if (child.childNodes.length) children.appendChild(child);
+        });
+        details.appendChild(children);
+        container.appendChild(details);
+        return container;
+      }
+
+      if (value && typeof value === 'object') {
+        const entries = Object.entries(value).filter(([k, v]) => shouldIncludeEntry(k, v));
+        if (!entries.length && filters.search) return container;
+
+        const details = document.createElement('details');
+        details.open = openByDefault;
+        const summary = document.createElement('summary');
+        summary.textContent = `${label} {${entries.length}}`;
+        details.appendChild(summary);
+
+        const children = document.createElement('div');
+        children.className = 'tree-children';
+        entries.forEach(([k, v]) => {
+          const child = renderNode(v, k, depth + 1);
+          if (child.childNodes.length) children.appendChild(child);
+        });
+        details.appendChild(children);
+        container.appendChild(details);
+        return container;
+      }
+
+      if (!filters.search || matchesFilter(label, value)) {
+        const wrap = document.createElement('div');
+        wrap.className = 'leaf';
+        wrap.innerHTML = `<span class="key">${escapeHtml(label)}:</span> <span class="${getValueClass(value)}">${escapeHtml(String(value))}</span>`;
+        container.appendChild(wrap);
+      }
+
+      return container;
+    }
+
+    function shouldIncludeArrayItem(item) {
+      if (filters.view === 'groups') {
+        return item && typeof item === 'object' && !Array.isArray(item) && (item.gruppo !== undefined || item.descrizione !== undefined);
+      }
+      if (filters.view === 'activities') {
+        return item && typeof item === 'object' && !Array.isArray(item) && Number(item.gruppo) === 23;
+      }
+      if (filters.group) {
+        return item && typeof item === 'object' && !Array.isArray(item) && String(item.gruppo ?? '') === filters.group;
+      }
+      return true;
+    }
+
+    function shouldIncludeEntry(key, value) {
+      if (filters.search) {
+        return nodeMatches(value) || matchesFilter(key, value);
+      }
+      if (filters.group && key === 'gruppi') {
+        return true;
+      }
+      return true;
+    }
+
+    function matchesGroup(item) {
+      if (!filters.group) return true;
+      return String(item?.gruppo ?? '') === filters.group;
+    }
+
+    function matchesFilter(label, value) {
+      if (!filters.search) return true;
+      const text = String(label).toLowerCase();
+      if (text.includes(filters.search)) return true;
+      if (typeof value === 'string') return value.toLowerCase().includes(filters.search);
+      if (typeof value === 'number' || typeof value === 'boolean') return String(value).toLowerCase().includes(filters.search);
+      if (Array.isArray(value)) return value.some((item) => nodeMatches(item));
+      if (value && typeof value === 'object') return Object.values(value).some((item) => nodeMatches(item));
+      return false;
+    }
+
+    function nodeMatches(node) {
+      if (node === null || node === undefined) return false;
+      if (typeof node === 'string') return node.toLowerCase().includes(filters.search);
+      if (typeof node === 'number' || typeof node === 'boolean') return String(node).toLowerCase().includes(filters.search);
+      if (Array.isArray(node)) return node.some((item) => nodeMatches(item));
+      if (typeof node === 'object') return Object.values(node).some((value) => nodeMatches(value));
+      return false;
+    }
+
+    function getValueClass(value) {
+      if (typeof value === 'string') return 'value-string';
+      if (typeof value === 'number') return 'value-number';
+      if (typeof value === 'boolean') return 'value-boolean';
+      if (value === null) return 'value-null';
+      return '';
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
